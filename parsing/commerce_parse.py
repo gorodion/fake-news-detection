@@ -1,3 +1,6 @@
+import requests
+from bs4 import BeautifulSoup
+
 def parse_commerce(url):
     try:
         page = requests.get(url)

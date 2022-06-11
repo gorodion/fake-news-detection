@@ -1,9 +1,12 @@
+import requests
+from bs4 import BeautifulSoup
+
 def parse_interfax(url):
     try:
         page = requests.get(url)
         #set encoding for interfax
         page.encoding = 'ptcp154' 
-        if page.status_code =! 200:
+        if page.status_code != 200:
             return None
         #init BeautifulSoup
         soup = BeautifulSoup(page.text, "html.parser")
