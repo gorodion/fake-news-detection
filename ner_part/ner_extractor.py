@@ -5,6 +5,7 @@ import torch
 
 class Ner_Extractor:
     """
+    source: https://huggingface.co/surdan/LaBSE_ner_nerel
     Labeling each token in sentence as named entity
 
     :param model_checkpoint: name or path to model
