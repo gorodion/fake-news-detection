@@ -3,7 +3,7 @@ import json
 from typing import Optional
 
 
-def get_summary(text: str)->Optional[str]:
+def get_summary(text: str) -> Optional[str]:
     try:
         r = requests.post('https://api.aicloud.sbercloud.ru/public/v2/summarizator/predict',
                           json={
