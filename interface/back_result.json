@@ -1,0 +1,38 @@
+{
+"status": "no primary",
+"score": 77,
+"tonality": 55,
+"clickbait": 44,
+"satirity": 33,
+"ner_content": [["мы", "entity1"], "лучше", ["всех", "entity2"]],
+"sources": [
+   {
+    "name": "mos.ru",
+    "url": "mos.ru/news/1333",
+    "success": "True",
+    "response": {
+        "title": "«Мы-Россияне»",
+        "content":"“Какой-то контент»",
+        "date": "2021-12-10",
+        "category": "None"},
+    "result": {
+       "score": 77,
+        "semantic": 66,
+        "tonality": 55,
+        "clickbait": 44,
+        "satirity": 33,
+        "ner_content": [["мы", "entity1"], "лучше", ["всех", "entity2"]],
+        "ner_inter": ["a", "b", "c"],
+        "ner_add": ["a", "b", "c"]}
+   },
+    {
+    "name": "nauka.tass.ru",
+    "url": "nauka.tass.ru/article/10",
+    "success": "False"
+    },
+    {
+    "name": "rbk.ru",
+    "url": "None",
+    "success": "False"
+    }]
+}
