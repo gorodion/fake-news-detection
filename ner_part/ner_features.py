@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     print(get_entities_front(extractor, 'Это Москва'))
     print(get_entities_front(extractor, 'Дмитрий есть человек'))
-    print(get_entities_front(extractor, 'Дмитрий Беляев'))
+    print(get_entities_front(extractor, 'Дмитрий Беляев '))
 
     print(get_entitiess(extractor, t1))
     print(get_entitiess(extractor, t2))
