@@ -10,7 +10,15 @@ st.set_page_config(
 
 
 # from config import sources
-source_dict = {}
+source_dict = {
+'interfax.ru': 'Интерфакс',
+'nauka.tass.ru': 'ТАСС',
+'mos.ru' : 'Mos.ru',
+# 'www.mos.ru/news/item/' : 'Mos.ru',
+'/www.kommersant.ru/': 'Коммерсант',
+'https://lenta.ru/news/': 'Лента',
+'rbk.ru' : 'РБК'
+}
 
 def annotate_text(ner):
     text = [tuple(i) if type(i) == list else i for i in ner]
@@ -28,9 +36,7 @@ def get_report(header, text, sources):
         result = json.loads(f.read())
     return result
 
-def get_selected_checkboxes():
-    return [i.replace('dynamic_checkbox_','') for i in st.session_state.keys()\
-            if i.startswith('dynamic_checkbox_') and st.session_state[i]]
+
 
 def checkbox_container(data):
     if st.button('Выбрать все'):
@@ -42,7 +48,18 @@ def checkbox_container(data):
             st.session_state['dynamic_checkbox_' + i] = False
         st.experimental_rerun()
     for i in data:
-        st.checkbox(i, key='dynamic_checkbox_' + i)
+        st.checkbox(i, key='dynamic_checkbox_' + i, value=1)
+
+def get_selected_checkboxes():
+    return [i.replace('dynamic_checkbox_','') for i in st.session_state.keys()\
+            if i.startswith('dynamic_checkbox_') and st.session_state[i]]
+
+def get_selected_urls(names):
+    result = []
+    for k, v in source_dict.items():
+        if v in names:
+            result.append(k)
+    return result
 
 
 def input_page():
@@ -64,45 +81,41 @@ def input_page():
 
         st.session_state['text'] = text
 
-        if st.session_state['text'] and st.session_state['header']:
+
+        if st.session_state['text'] and st.session_state['header'] and st.session_state["active_sources"]:
             button_container = st.empty()
             st.session_state['input_done'] = button_container.button('Проверить', disabled=False)
 
         if st.session_state['input_done']:
             st.session_state["active_sources"] = get_selected_checkboxes()
+            st.write('select')
+            st.session_state["active_urls"] = get_selected_urls(st.session_state["active_sources"])
+
             text_input_container.empty()
             button_container.empty()
 
-    with col2:
-        st.header('Выберите источники')
-        checkbox_container(sources)
-
+        if st.session_state['input_done'] == False:
+            with col2:
+                st.header('Выберите источники')
+                checkbox_container(sources)
+                st.session_state["active_sources"] = get_selected_checkboxes()
+        else:
+            with col2:
+                # кнопка ввести новую статью
+                pass
 
 def backend_connection():
-    st.write('Выбраны: ', ', '.join(st.session_state['active_sources']))
+    st.markdown('##### Выбраны: ' + ', '.join(st.session_state['active_sources']))
     report = get_report(st.session_state['header'], st.session_state['text'], st.session_state['sources'])
     status = report['status']
     if status == 'not found':
-        not_found_page(rep)
+        not_found_page(report)
     elif status == 'with primary':
         with_primary_page(report)
     elif status == 'no primary':
-        no_primary_page(rep)
+        no_primary_page(report)
 
-def not_found_page(rep):
-    col1, col2 = st.columns((3, 3))
-    with col1:
-        st.title('Ваш запрос')
-        st.header(st.session_state['header'])
-        st.text_area(label='Самари',
-                     value ='samples' * 20,
-                     height=300,
-                     disabled=True)
-    with col2:
-        st.title('Не найдено')
-        st.header(f'Достоверность : 0 %')
-        st.markdown('Вердикт: *__не найдено__*')
-        # парсинг
+
 
 def with_primary_page(rep):
     col1, col2 = st.columns((3, 3))
@@ -119,9 +132,8 @@ def with_primary_page(rep):
 
     with col2:
         col2.header(f'Достоверность {rep["score"]} %')
+        col2.markdown(f"### Вердикт: *__перефразировано__*")
 
-        # st.markdown(f"#### Кликбейтность {rep['clickbait']} %")
-        # st.markdown(f"#### Сатиричность {rep['satirity']} %")
         st.metric(label="Кликбейтность", value=rep['clickbait'])
         st.metric(label="Сатиричность", value=rep['satirity'])
         st.markdown('_________________')
@@ -129,11 +141,17 @@ def with_primary_page(rep):
         col2.header(f'Источники:')
 
         for s in rep['sources']:
-            if s['success'] == "True":
-                st.markdown(f"### [{s['name']}](https://{s['url']})", unsafe_allow_html=True)
+            if s['success'] == "True" and s["name"] in st.session_state["active_urls"]:
+                st.markdown(f"### Найдено: [{s['name']}](https://{s['url']})", unsafe_allow_html=True)
                 annotate_text(s['result']['ner_content'])
-            else:
+                st.markdown('###### В обеих статьях упоминаются:')
+                annotate_text(s['result']['ner_inter'])
+                st.markdown('###### В источнике не говорится о:')
+                annotate_text(s['result']['ner_add'])
+
+            elif s['success'] == "False" and s["name"] in st.session_state["active_urls"]:
                 st.subheader(f'В {s["name"]} ничего не найдено')
+
 
 
 
@@ -141,30 +159,46 @@ def no_primary_page(rep):
     col1, col2 = st.columns((3, 3))
     with col1:
         #Hear we place user query title and NER from query content
-        st.header('Ваш запрос')
-        st.subheader(st.session_state['header'])
+        col1.header('Ваш запрос')
+        col1.markdown(f"#### {st.session_state['header']}")
         annotate_text(rep['ner_content'])
 
     with col2:
-        st.title('Искажение')
-        st.header(f'Достоверность {rep["score"]} %')
+        col2.header(f'Достоверность {rep["score"]} %')
+        col2.markdown(f"### Вердикт: *__искажение__*")
+        st.metric(label="Кликбейтность", value=rep['clickbait'])
+        st.metric(label="Сатиричность", value=rep['satirity'])
+        st.markdown('_________________')
 
-        st.metric(label="Семантика", value=rep['semantic'], delta="1.2")
-        st.metric(label="Тональность", value=rep['tonality'], delta="1.2")
-        st.metric(label="Кликбейт", value=rep['clickbait'], delta="1.2")
-        st.metric(label="Сатиричность", value=rep['satirity'], delta="1.2")
+        col2.header(f'Источники:')
 
-        for k, v in rep.items():
-            if v['responce']:
-                st.text_area(label=k,
-                         value=f"{v['semant']}, {v['ton']}",
-                         disabled=True)
-                annotated_text("ПРИМЕР: ", ("Nemezida, Стартап, хакатон", "упоминается в обеих статьях"), "ЫЫЫ")
-                annotated_text(("Инвестици, заказчики", "не упоминается в источнике"))
-            else:
-                st.text_area(label=k,
-                             value=f"sample",
-                             disabled=True)
+        for s in rep['sources']:
+            if s['success'] == "True" and s["name"] in st.session_state["active_urls"]:
+                st.markdown(f"### Схожесть {s['result']['semantic']} % c [{s['name']}](https://{s['url']})", unsafe_allow_html=True)
+                annotate_text(s['result']['ner_content'])
+                st.markdown('###### В обеих статьях упоминаются:')
+                annotate_text(s['result']['ner_inter'])
+                st.markdown('###### В источнике не говорится о:')
+                annotate_text(s['result']['ner_add'])
+
+            elif s['success'] == "False" and s["name"] in st.session_state["active_urls"]:
+                st.subheader(f'В {s["name"]} ничего не найдено')
+
+def not_found_page(rep):
+    col1, col2 = st.columns((3, 3))
+    with col1:
+        #Hear we place user query title and NER from query content
+        col1.header('Ваш запрос')
+        col1.markdown(f"#### {st.session_state['header']}")
+        annotate_text(rep['ner_content'])
+
+    with col2:
+        col2.header(f'Достоверность {rep["score"]} %')
+        col2.markdown(f"### Вердикт: *не найдено*")
+        st.metric(label="Кликбейтность", value=rep['clickbait'])
+        st.metric(label="Сатиричность", value=rep['satirity'])
+        st.markdown('_________________')
+
 input_page()
 if st.session_state['input_done']:
     backend_connection()
