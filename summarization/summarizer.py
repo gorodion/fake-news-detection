@@ -4,6 +4,11 @@ from typing import Optional
 
 
 def get_summary(text: str) -> Optional[str]:
+    """
+    Gets the text summary from summarization api
+    :param text: original text
+    :return: shortened version of the text
+    """
     try:
         r = requests.post('https://api.aicloud.sbercloud.ru/public/v2/summarizator/predict',
                           json={
@@ -22,7 +27,7 @@ def get_summary(text: str) -> Optional[str]:
         d = json.loads(r.text)
         return d['predictions']
     except Exception:
-        return None
+        return text
 
 
 if __name__ == "__main__":

@@ -4,6 +4,9 @@ import torch
 
 
 class SemanticModel:
+    """
+    This model extracts the semantics of a text, using https://huggingface.co/DeepPavlov/rubert-base-cased
+    """
     def __init__(self, model_path, model_name, device):
         self.model = AutoModel.from_pretrained(model_path, config=AutoConfig.from_pretrained(model_name))
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
