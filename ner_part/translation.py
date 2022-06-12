@@ -1,7 +1,6 @@
 TRANSLATIONS = {
     "O": "O",
     "AGE":"ВОЗРАСТ",
-
     "AWARD":"НАГРАДА",
     "CITY":"ГОРОД",
     "COUNTRY":"СТРАНА",

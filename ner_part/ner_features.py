@@ -4,6 +4,12 @@ from translation import TRANSLATIONS
 
 
 def get_entities_front(extractor, text: str) -> List:
+    """
+    Format NER-output for frontend
+    :param extractor: NER extractor model
+    :param text: orgiginal text
+    :return: list of tuples with entities
+    """
     entities = extractor.get_entities(text)
     if not entities:
         return [text]
@@ -18,6 +24,12 @@ def get_entities_front(extractor, text: str) -> List:
 
 
 def get_entitiess(extractor, text: str) -> pd.DataFrame:
+    """
+    Extact entitites from the text
+    :param extractor: a model for NER extraction
+    :param text: input
+    :return: returns a dataframe
+    """
     data = []
     for ent, start, end in extractor.get_entities(text):
         data.append({'type': TRANSLATIONS[ent] if ent in TRANSLATIONS else ent, 'text': text[start:end]})
