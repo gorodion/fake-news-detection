@@ -1,5 +1,4 @@
 import pandas as pd
-from translations import TRANSLATIONS
 from typing import List, Dict
 from translation import TRANSLATIONS
 
