@@ -12,11 +12,25 @@ def old_parse_tass(url: str) -> Optional[Dict[str, str]]:
             return None
         page = page.text
         soup = bs4.BeautifulSoup(page, "html.parser")
-        title = soup.find('span', {'class':'explainer__title'}).contents[0]
-        lead = soup.find('div', {'class':'explainer-lead'}).contents[0]
-        time = soup.find('dateformat').get('time')
-        time = datetime.utcfromtimestamp(int(time)).strftime('%Y-%m-%d')
-        content = lead + ' '.join([p.text.replace(u'\xa0', ' ') for p in soup.find('div', {'class':'card'}).findAll('p')])
+        try:
+            title = soup.find('span', {'class':'explainer__title'}).contents[0]
+        except Exception as e:
+            print(f'Failed to parse title: {e}')
+            title = ''
+        try:
+            lead = soup.find('div', {'class':'explainer-lead'}).contents[0]
+
+        except Exception as e:
+            print(f'Failed to parse lead {e}')
+            lead = ''
+        try:
+            time = soup.find('dateformat').get('time')
+            time = datetime.utcfromtimestamp(int(time)).strftime('%Y-%m-%d')
+        except Exception as e:
+            print(f'Failed to parse time {e}')
+            time = ''
+        content = lead + ' '.join([p.text.replace(u'\xa0', ' ')
+                                   for p in soup.find('div', {'class': 'card'}).findAll('p')])
         try:
             category = soup.findAll('a', {'class':'tags__item'})[-1].contents[0]
         except Exception:
@@ -26,6 +40,7 @@ def old_parse_tass(url: str) -> Optional[Dict[str, str]]:
         print(e)
         return None
 
+
 def new_parse_tass(url: str) -> Optional[Dict[str, str]]:
     page = requests.get(url)
     if page.status_code != 200:
@@ -33,10 +48,22 @@ def new_parse_tass(url: str) -> Optional[Dict[str, str]]:
         return None
     page = page.text
     soup = bs4.BeautifulSoup(page, "html.parser")
-    title = soup.find('h1', {'class':'news-header__title'}).contents[0].replace('\n', '')
-    lead = soup.find('div', {'class':'news-header__lead'}).contents[0]
-    time = soup.find('dateformat').get('time')
-    time = datetime.utcfromtimestamp(int(time)).strftime('%Y-%m-%d')
+    try:
+        title = soup.find('h1', {'class':'news-header__title'}).contents[0].replace('\n', '')
+    except Exception as e:
+        print(f'Failed to parse title {e}')
+        title = ''
+    try:
+        lead = soup.find('div', {'class':'news-header__lead'}).contents[0]
+    except Exception as e:
+        print(f'Failed to parse lead {e}')
+        lead = ''
+    try:
+        time = soup.find('dateformat').get('time')
+        time = datetime.utcfromtimestamp(int(time)).strftime('%Y-%m-%d')
+    except Exception as e:
+        print(f'Failed to parse time {e}')
+        time = ''
     content = lead + ' '.join([p.text.replace(u'\xa0', ' ') for p in soup.find('div', {'class':'text-block'}).findAll('p')])
     category = soup.findAll('a', {'class':'tags__item'})[-1].contents[0]
     return dict(title=title, category=category, time=time, content=content,)
@@ -46,11 +73,13 @@ def new_parse_tass(url: str) -> Optional[Dict[str, str]]:
 def parse_tass(url: str) -> Optional[Dict[str, str]]:
     try:
         return new_parse_tass(url)
-    except Exception:
+    except Exception as e:
+        print(f'Failed parsing tass {e}')
         pass
     try:
         return old_parse_tass(url)
-    except Exception:
+    except Exception as e:
+        print(f'Failed parsing tass {e}')
         return None
 
 if __name__ == '__main__':
