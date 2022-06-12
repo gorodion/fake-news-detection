@@ -11,14 +11,25 @@ def parse_interfax(url):
         #init BeautifulSoup
         soup = BeautifulSoup(page.text, "html.parser")
         #taking header
-        title = soup.find('h1', itemprop="headline").text
+        try:
+            title = soup.find('h1', itemprop="headline").text
+        except Exception as e:
+            print(f'Failed to parse title {e}')
         #taking content
-        content = ' '.join(list(map(lambda x : x.text, soup.findAll('p')))) 
+        try:
+            content = ' '.join(list(map(lambda x : x.text, soup.findAll('p'))))
+        except Exception as e:
+            print(f'Failed to parse content {e}')
         #taking category
-        category = soup.find('aside', class_="textML").contents[1].text
+        try:
+            category = soup.find('aside', class_="textML").contents[1].text
+        except Exception as e:
+            print(f'Failed to parse category {e}')
         #taking date
-        date = soup.find('a',class_="time")["href"][6:].replace('/', '-')
-
+        try:
+            date = soup.find('a',class_="time")["href"][6:].replace('/', '-')
+        except Exception as e:
+            print(f'Failed to parse date {e}')
         #return dict with all information
         return dict(title=title, content=content, category=category, date=date)
     except Exception:

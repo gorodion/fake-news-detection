@@ -14,7 +14,8 @@ def parse_mos(url: str) -> dict:
         content = soup.find('div', attrs={'class': 'content-text'}).text.replace('\xa0', ' ')
         category = soup.find('a', attrs={'class': 'news-article-spheres__link'}).text.replace('\xa0', ' ')
         return dict(title=title, content=content, category=category, date=date)
-    except Exception:
+    except Exception as e:
+        print(f'Failed to parse mos.ru {e}')
         return None
 
 
