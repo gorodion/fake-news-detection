@@ -1,4 +1,5 @@
 import pandas as pd
+from translations import TRANSLATIONS
 from typing import List, Dict
 
 
@@ -19,7 +20,7 @@ def get_entities_front(extractor, text: str) -> List:
 def get_entitiess(extractor, text: str) -> pd.DataFrame:
     data = []
     for ent, start, end in extractor.get_entities(text):
-        data.append({'type': ent, 'text': text[start:end]})
+        data.append({'type': TRANSLATIONS[ent] if TRANSLATIONS.get(ent) else ent, 'text': text[start:end]})
     return pd.DataFrame(data)
 
 
