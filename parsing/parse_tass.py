@@ -47,7 +47,6 @@ def new_parse_tass(url: str) -> Optional[Dict[str, str]]:
         print(page)
         return None
     page = page.text
-    print(page)
     soup = bs4.BeautifulSoup(page, "html.parser")
     try:
         title = soup.find('h1', {'class':'news-header__title'}).contents[0].replace('\n', '')
