@@ -6,39 +6,24 @@ from ner_part.ner_extractor import Ner_Extractor
 from ner_part.ner_features import get_entities_front, compare_texts
 from parsing.google_parser import get_articles_google
 from summarization.summarizer import get_summary
-import cfg
+from cfg import *
 
-semantic_model = SemanticModel(cfg.semantic_model_path, cfg.semantic_model_name, cfg.device),
-ner_model = Ner_Extractor(model_checkpoint=cfg.ner_model_name)
-
-NER_CONTENT = 'ner_content'
-SEMANTIC = 'semantic'
-SOURCES = 'sources'
-STATUS = 'status'
-SCORE = 'score'
-CONTENT = 'content'
-SUCCESS = 'success'
-RESPONSE = 'response'
-RESULT = 'result'
-NOT_FOUND = 'not_found'
-NO_PRIMARY = 'no_primary'
-NER_INTER = 'ner_inter'
-NER_ADD = 'ner_add'
-DATE = 'date'
+semantic_model = SemanticModel(semantic_model_path, semantic_model_name, device)
+ner_model = Ner_Extractor(model_checkpoint=ner_model_name)
 
 
-def get_primary(sources: list) -> bool:
+def has_primary(sources: list) -> bool:
      return bool([source for source in sources
              if source[SUCCESS]
-             and source[RESPONSE][DATE] is not None
-             and source[RESULT][SEMANTIC] > cfg.semantic_thr])
+             and source[RESPONSE][DATE]
+             and source[RESULT][SEMANTIC] > semantic_thr])
 
 
 def get_primary_idx(sources: list) -> int:
     return [i for i, source in enumerate(sources)
                  if source[SUCCESS]
                  and source[RESPONSE][DATE] is not None
-                 and source[RESULT][SEMANTIC] > cfg.semantic_thr][0]
+                 and source[RESULT][SEMANTIC] > semantic_thr][0]
 
 
 def check_news(title: str, content: str, whitelist: List[str]):
@@ -49,8 +34,10 @@ def check_news(title: str, content: str, whitelist: List[str]):
     response = {}
 
     # с помощью гугла находим похожие источники по заголовку
-    sources = get_articles_google(title) # TODO
+    sources = get_articles_google(content, whitelist)
     response[SOURCES] = sources
+    # кликбейтность
+    response[CLICKBAIT] = round((1 - semantic_model(title, content)) * 100)
     # с помощью модели суммаризации получаем суммаризованный контент
     summary = get_summary(content)
     # извлекаем сущности, с помощью NER модели
@@ -72,9 +59,10 @@ def check_news(title: str, content: str, whitelist: List[str]):
     for source in sources:
         if source[SUCCESS]:
             result = {}
-            other_summary = get_summary(source[CONTENT])
+            other_summary = get_summary(source[RESPONSE][CONTENT])
             result[NER_CONTENT] = get_entities_front(ner_model, other_summary)
             result[SEMANTIC] = round(semantic_model(other_summary, summary) * 100)
+            result[CLICKBAIT] = round((1 - semantic_model(source[RESPONSE][TITLE], other_summary)) * 100)
             ner_compare = compare_texts(ner_model, other_summary, summary)
             result[NER_INTER] = ner_compare['intersection_words']['TOTAL']
             result[NER_ADD] = ner_compare['addition_words']['TOTAL']
@@ -90,5 +78,6 @@ def check_news(title: str, content: str, whitelist: List[str]):
     idx = get_primary_idx(sources)
     sources[0], sources[idx] = sources[idx], sources[0]
     # TODO метаоценщик
-
+    response[STATUS] = WITH_PRIMARY
+    response[SCORE] = 80 # TODO
     return response
