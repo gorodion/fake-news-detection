@@ -74,6 +74,10 @@ def annotate_text(ner):
         if type(i) == list:
             i[0] = i[0].replace('-', ' ') + ' '
             text.append(tuple(i))
+        elif type(i) == tuple:
+            i = list(i)
+            i[0] = i[0].replace('-', ' ') + ' '
+            text.append(tuple(i))
         elif type(i) == str:
             i = i.replace('-', ' ') + ' '
             text.append(i)
@@ -199,7 +203,8 @@ def backend_connection():
     :return:
     """
     st.markdown('##### Выбраны: ' + ', '.join(st.session_state['active_sources']))
-    report = get_report(st.session_state['header'], st.session_state['text'], st.session_state['active_urls'], test_mode=TEST_MODE)
+    with st.spinner('In progress...'):
+        report = get_report(st.session_state['header'], st.session_state['text'], st.session_state['active_urls'], test_mode=TEST_MODE)
     status = report['status']
     if status == NOT_FOUND:
         not_found_page(report)
@@ -234,9 +239,10 @@ def with_primary_page(rep):
 def no_primary_page(rep):
     col1, col2 = st.columns((3, 3))
     with col1:
-        #Hear we place user query title and NER from query content
-        col1.header('Ваш запрос')
-        col1.markdown(f"#### {st.session_state['header']}")
+        # Hear we place user query title and NER from query content
+        col1.header('Ключевые упоминания')
+        # col1.markdown(f"#### {st.session_state['header']}")
+        col1.markdown(f"#### Ваш запрос")
         annotate_text(rep['ner_content'])
 
     with col2:
@@ -247,9 +253,10 @@ def no_primary_page(rep):
 def not_found_page(rep):
     col1, col2 = st.columns((3, 3))
     with col1:
-        #Hear we place user query title and NER from query content
-        col1.header('Ваш запрос')
-        col1.markdown(f"#### {st.session_state['header']}")
+        # Hear we place user query title and NER from query content
+        col1.header('Ключевые упоминания')
+        # col1.markdown(f"#### {st.session_state['header']}")
+        col1.markdown(f"#### Ваш запрос")
         annotate_text(rep['ner_content'])
 
     with col2:

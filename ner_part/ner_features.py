@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import List, Dict
-from translation import TRANSLATIONS
+from .translation import TRANSLATIONS
 
 
 def get_entities_front(extractor, text: str) -> List:
