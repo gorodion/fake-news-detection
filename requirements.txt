@@ -3,3 +3,4 @@ transformers==4.18.0
 nltk==3.7
 streamlit==1.10.0
 st-annotated-text==3.0.0
+google==3.0.0
