@@ -91,7 +91,8 @@ def check_news(title: str, content: str, whitelist: List[str]):
     pprint(sources[0])
     # TODO метаоценщик
     response[STATUS] = WITH_PRIMARY
-    response[SCORE] = 80 # TODO
+    NER_coef = len(sources[0][RESULT][NER_ADD]) / (len(sources[0][RESULT][NER_ADD]) + len(sources[0][RESULT][NER_INTER]))
+    response[SCORE] = int(sources[0][RESULT][SEMANTIC] - NER_coef * 30) # TODO
 
     print('Ответ:')
     pprint(response)
