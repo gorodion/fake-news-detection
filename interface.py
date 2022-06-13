@@ -74,6 +74,10 @@ def annotate_text(ner):
         if type(i) == list:
             i[0] = i[0].replace('-', ' ') + ' '
             text.append(tuple(i))
+        elif type(i) == tuple:
+            i = list(i)
+            i[0] = i[0].replace('-', ' ') + ' '
+            text.append(tuple(i))
         elif type(i) == str:
             i = i.replace('-', ' ') + ' '
             text.append(i)

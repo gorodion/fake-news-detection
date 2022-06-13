@@ -18,7 +18,7 @@ def get_entities_front(extractor, text: str) -> List:
     for i, (ent, start, end) in enumerate(entities):
         if i == 0 and start != 0:
             data.append(text[:start])
-        data.append((text[start:end], ent))
+        data.append((text[start:end], TRANSLATIONS[ent]))
     if end < len(text):
         data.append(text[end:])
     return data
