@@ -37,5 +37,8 @@ pip install -r requirements.txt
 streamlit run interface.py 
 ```
 
+## Пример работы
+Небольшая демка (видео) доступна по [ссылке](https://drive.google.com/file/d/1Xaao9AMHqPiI2NsDGI869LXIxvjUzaVm/view).
+Больше примеров в нашей [презентации](https://docs.google.com/presentation/d/1FU2HRJxO5N7BKdQJ16Bm6Uusa2xiaylmDxSft3xAuA8/edit#slide=id.p3) 
 
 
