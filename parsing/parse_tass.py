@@ -35,7 +35,7 @@ def old_parse_tass(url: str) -> Optional[Dict[str, str]]:
             category = soup.findAll('a', {'class':'tags__item'})[-1].contents[0]
         except Exception:
             category = None
-        return dict(title=title, category=category, time=time, content=content,)
+        return dict(title=title, category=category, date=time, content=content,)
     except Exception as e:
         print(e)
         return None
@@ -66,7 +66,7 @@ def new_parse_tass(url: str) -> Optional[Dict[str, str]]:
         time = ''
     content = lead + ' '.join([p.text.replace(u'\xa0', ' ') for p in soup.find('div', {'class':'text-block'}).findAll('p')])
     category = soup.findAll('a', {'class':'tags__item'})[-1].contents[0]
-    return dict(title=title, category=category, time=time, content=content,)
+    return dict(title=title, category=category, date=time, content=content,)
 
 
 

@@ -1,5 +1,5 @@
 semantic_thr = 0.7
-score_thr = 85
+score_thr = 79
 
 semantic_model_name = 'cointegrated/rubert-tiny2'
 semantic_model_path = 'cointegrated/rubert-tiny2'  # 'best_75_enc.pt'
