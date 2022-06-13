@@ -59,8 +59,7 @@ if __name__ == '__main__':
     from pprint import pprint
 
     test_queries = [
-        'Москва вошла в топ-3 COVID',
-        'Выиграл хакатон',
+        'Москва стала лидером в Европе в рейтинге инноваций, помогающих в борьбе с COVID-19'
     ]
     for q in test_queries:
         pprint(get_articles_google(q, ['mos.ru', 'rbc.ru'], 3))

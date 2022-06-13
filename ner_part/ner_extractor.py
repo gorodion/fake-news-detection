@@ -46,6 +46,9 @@ class Ner_Extractor:
         entities = []
         prev_entity = None
         prev_end = 0
+        # print('---------------------------------------')
+        # print('---------------------------------------')
+        # print(ner_result)
         for i in range(len(ner_result)):
 
             if (ner_result[i]["entity_group"] == prev_entity) & \

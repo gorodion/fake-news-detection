@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import List, Dict
-from translation import TRANSLATIONS
+
+from .translation import TRANSLATIONS
 
 
 def get_entities_front(extractor, text: str) -> List:
@@ -17,7 +18,7 @@ def get_entities_front(extractor, text: str) -> List:
     for i, (ent, start, end) in enumerate(entities):
         if i == 0 and start != 0:
             data.append(text[:start])
-        data.append((text[start:end], ent))
+        data.append((text[start:end], TRANSLATIONS[ent]))
     if end < len(text):
         data.append(text[end:])
     return data
@@ -38,7 +39,6 @@ def get_entitiess(extractor, text: str) -> pd.DataFrame:
 
 def compare_texts(extractor, text1: str, text2: str) -> Dict[str, Dict[str, int]]:
     """
-
     :param text1: original text
     :param text2: copy/match
     :return: dataframe with per-entity intersection and addition metrics

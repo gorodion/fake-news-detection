@@ -24,6 +24,7 @@ if __name__ == '__main__':
     import time
 
     test_urls = [
+        'https://www.mos.ru/news/item/99623073/',
         'https://www.mos.ru/mayor/themes/12299/8381050/',
         'https://www.mos.ru/mayor/themes/4299/8380050/',
         'https://www.mos.ru/news/item/108039073/'
@@ -32,3 +33,4 @@ if __name__ == '__main__':
     for url in test_urls:
         pprint(parse_mos(url))
         time.sleep(1)
+        break

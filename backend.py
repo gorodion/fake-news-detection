@@ -1,5 +1,5 @@
 from typing import List
-
+from pprint import pprint
 
 from semantic.model import SemanticModel
 from ner_part.ner_extractor import Ner_Extractor
@@ -34,7 +34,7 @@ def check_news(title: str, content: str, whitelist: List[str]):
     response = {}
 
     # с помощью гугла находим похожие источники по заголовку
-    sources = get_articles_google(content, whitelist)
+    sources = get_articles_google(title, whitelist)
     response[SOURCES] = sources
     # кликбейтность
     response[CLICKBAIT] = round((1 - semantic_model(title, content)) * 100)
@@ -51,15 +51,27 @@ def check_news(title: str, content: str, whitelist: List[str]):
             found = True
             break
     if not found:
+        print('Статьи не найдены')
         response[STATUS] = NOT_FOUND
         response[SCORE] = 0
+
+        print('Ответ:')
+        pprint(response)
         return response
 
     # запуск моделей на найденных статьях
+    print('Найдены похожие статьи')
+    pprint(sources)
     for source in sources:
         if source[SUCCESS]:
             result = {}
-            other_summary = get_summary(source[RESPONSE][CONTENT])
+            other_summary = get_summary(source[RESPONSE][CONTENT])[:400]
+            print('---------------------------------------')
+            print(source)
+            print('---------------------------------------')
+            print(len(other_summary))
+            print('---------------------------------------')
+
             result[NER_CONTENT] = get_entities_front(ner_model, other_summary)
             result[SEMANTIC] = round(semantic_model(other_summary, summary) * 100)
             result[CLICKBAIT] = round((1 - semantic_model(source[RESPONSE][TITLE], other_summary)) * 100)
@@ -70,14 +82,24 @@ def check_news(title: str, content: str, whitelist: List[str]):
 
     # случай, когда нет первоисточника
     if not has_primary(sources):
+        print('Нет первоисточника')
         response[STATUS] = NO_PRIMARY
         response[SCORE] = 0 # TODO сделать оценку на основе тональности
+
+        print('Ответ:')
+        pprint(response)
         return response
 
     # ставим первоисточник на первое место
     idx = get_primary_idx(sources)
     sources[0], sources[idx] = sources[idx], sources[0]
+    print(f'Первоисточник найден')
+    pprint(sources[0])
     # TODO метаоценщик
     response[STATUS] = WITH_PRIMARY
-    response[SCORE] = 80 # TODO
+    NER_coef = len(sources[0][RESULT][NER_ADD]) / (len(sources[0][RESULT][NER_ADD]) + len(sources[0][RESULT][NER_INTER]))
+    response[SCORE] = int(sources[0][RESULT][SEMANTIC] - NER_coef * 20) # TODO
+
+    print('Ответ:')
+    pprint(response)
     return response
