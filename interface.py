@@ -24,7 +24,7 @@ source_dict = {
 }
 
 if 'sources' not in st.session_state.keys():
-    sources = ['Интерфакс', 'РБК', 'Mos.ru', 'Коммерсант', 'Лента', 'ТАСС']
+    sources = ['Интерфакс', 'Mos.ru', 'Коммерсант']
     st.session_state['sources'] = sources
 else:
     sources = st.session_state['sources']
@@ -43,7 +43,10 @@ def checkbox_container(data):
             st.session_state['dynamic_checkbox_' + i] = False
         st.experimental_rerun()
     for i in data:
-        st.checkbox(i, key='dynamic_checkbox_' + i, value=1)
+        if i == 'Mos.ru':
+            st.checkbox(i, key='dynamic_checkbox_' + i, value=1)
+        else:
+            st.checkbox(i, key='dynamic_checkbox_' + i)
 
 def get_selected_checkboxes():
     """
@@ -262,6 +265,8 @@ def not_found_page(rep):
     with col2:
         article_stats(rep)
 
+
+# run program
 input_page()
 if st.session_state['input_done']:
     backend_connection()

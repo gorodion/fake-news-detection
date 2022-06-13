@@ -65,7 +65,13 @@ def check_news(title: str, content: str, whitelist: List[str]):
     for source in sources:
         if source[SUCCESS]:
             result = {}
-            other_summary = get_summary(source[RESPONSE][CONTENT])
+            other_summary = get_summary(source[RESPONSE][CONTENT])[:400]
+            print('---------------------------------------')
+            print(source)
+            print('---------------------------------------')
+            print(len(other_summary))
+            print('---------------------------------------')
+
             result[NER_CONTENT] = get_entities_front(ner_model, other_summary)
             result[SEMANTIC] = round(semantic_model(other_summary, summary) * 100)
             result[CLICKBAIT] = round((1 - semantic_model(source[RESPONSE][TITLE], other_summary)) * 100)
@@ -92,7 +98,7 @@ def check_news(title: str, content: str, whitelist: List[str]):
     # TODO метаоценщик
     response[STATUS] = WITH_PRIMARY
     NER_coef = len(sources[0][RESULT][NER_ADD]) / (len(sources[0][RESULT][NER_ADD]) + len(sources[0][RESULT][NER_INTER]))
-    response[SCORE] = int(sources[0][RESULT][SEMANTIC] - NER_coef * 30) # TODO
+    response[SCORE] = int(sources[0][RESULT][SEMANTIC] - NER_coef * 20) # TODO
 
     print('Ответ:')
     pprint(response)

@@ -1,8 +1,9 @@
 semantic_thr = 0.7
-score_thr = 79
+score_thr = 59
 
 semantic_model_name = 'cointegrated/rubert-tiny2'
 semantic_model_path = 'cointegrated/rubert-tiny2'  # 'best_75_enc.pt'
+# semantic_model_path = 'semantic.pth.pt'
 
 clickbait_model_name = 'cointegrated/rubert-tiny2'
 clickbait_model_path = 'cointegrated/rubert-tiny2'  # 'best_75_enc.pt'
